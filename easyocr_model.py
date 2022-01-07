@@ -61,6 +61,7 @@ def bounding_box_visualizer():  # Use cv2.waitkey() after function
         color = (0, 0, 255)  # RED
         if verify_reg(text):
             color = (0, 255, 0)  # GREEN
+            print("[OCR] REG Detected")
         cv2.rectangle(image, tl, br, color, 2)
         cv2.putText(image, text, (tl[0], tl[1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)

@@ -1,25 +1,19 @@
-import asyncore
-class SauronClient(asyncore.dispatcher):
+import socket
 
-    def __init__(self, host, path):
-        asyncore.dispatcher.__init__(self)
-        self.create_socket()
-        self.connect( (host, 80) )
-        self.buffer = bytes('GET %s HTTP/1.0\r\nHost: %s\r\n\r\n' %
-                            (path, host), 'ascii')
 
-    def handle_connect(self):
-        pass
+HOST = 'localhost'  # The server's hostname or IP address
+PORT = 11417        # The port used by the server
 
-    def handle_close(self):
-        self.close()
-
-    def handle_read(self):
-        print(self.recv(8192))
-
-    def writable(self):
-        return (len(self.buffer) > 0)
-
-    def handle_write(self):
-        sent = self.send(self.buffer)
-        self.buffer = self.buffer[sent:]
+for i in range(0, 100):
+    try:
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            response = ""
+            s.connect((HOST, PORT))
+            while response != "quit":
+                response = input(": ")
+                s.sendall(response.encode("utf-8"))
+                data = s.recv(1024)
+                print('Received', data.decode("utf-8"))
+    except ConnectionRefusedError:
+        print(f"[NET] Connection Attempt {i}")
+print("[NET] Timed out")
