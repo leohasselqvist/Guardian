@@ -31,6 +31,7 @@ def cleanup_text(text):
     # using OpenCV
     return "".join([c if c in letterset else "" for c in text]).strip()
 
+
 def __main__():
     while True:
         print(read_text())

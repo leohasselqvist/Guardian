@@ -13,38 +13,38 @@ parked_cars = {}  # KEY: str | VALUE: bool (verified or nah)
 
 
 def __main__():
-    ocr_trd = threading.Thread(target=run_ocr)
+    ocr_trd = threading.Thread(target=run_ocr)  # Create a separate thread for the OCR
     if "-n" not in sys.argv:  # If -n in args, ignore networking setup
         print("[OCR] Starting thread...")
-        ocr_trd.start()
+        ocr_trd.start()  # OCR will run in the background
         print("[NET] Starting server...")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
-            s.bind(('localhost', 11417))
+            s.bind(('localhost', 11417))  # Set port
             s.listen()
             while True:
                 print("[NET] Listening for client...")
                 conn, addr = s.accept()
-                with conn:
+                with conn:  # If we get a connection...
                     print(f'[NET] Client accepted {addr[0]}')
                     while True:
                         try:
-                            data = conn.recv(1024).decode('utf-8')
+                            data = conn.recv(1024).decode('utf-8')  # Data received
                             print(f"[NET] Received {data}")
-                            if not data:
-                                print("[NET] Connection closed by client.")
+                            if not data:  # If they forcefully closed
+                                print(f"[NET] Connection forcefully closed by {addr[0]}.")
                                 break
-                            if data == "quit":
+                            if data == "quit":  # If they gracefully closed
                                 conn.close()
-                                print(f"[NET] Connection closed with {addr[0]}")
+                                print(f"[NET] Connection closed by {addr[0]}")
                                 break
-                            cars = data.split('|')
+                            cars = data.split('|')  # Split for multiple cars
                             for entry in cars:
-                                car = entry.split('.')
+                                car = entry.split('.')  # car[0] is the regplate, car[1] is to add or remove it
                                 if car[1] == "1":
                                     paid_cars.append(car[0].upper())
                                 else:
                                     paid_cars.remove(car[0].upper())
-                            conn.sendall(str(paid_cars).encode('utf-8'))
+                            conn.sendall(str(paid_cars).encode('utf-8'))  # Respond with the current list of paid cars.
                         except Exception as e:
                             conn.sendall(("ERROR: " + str(e)).encode('utf-8'))
     else:
