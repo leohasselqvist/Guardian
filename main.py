@@ -13,21 +13,40 @@ parked_cars = {}  # KEY: str | VALUE: bool (verified or nah)
 
 
 def __main__():
+    ocr_trd = threading.Thread(target=run_ocr)
     if "-n" not in sys.argv:  # If -n in args, ignore networking setup
+        print("[OCR] Starting thread...")
+        ocr_trd.start()
         print("[NET] Starting server...")
         with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.bind(('localhost', 11417))
             s.listen()
-            print("[NET] Listening for client...")
-            conn, addr = s.accept()
-            with conn:
-                print(f'[NET] Client accepted {addr[0]}')
-                while True:
-                    data = conn.recv(1024).decode('utf-8')
-                    print(f"[NET] Received {data}")
-                    if not data:
-                        break
-                    conn.sendall("ok".encode('utf-8'))
+            while True:
+                print("[NET] Listening for client...")
+                conn, addr = s.accept()
+                with conn:
+                    print(f'[NET] Client accepted {addr[0]}')
+                    while True:
+                        try:
+                            data = conn.recv(1024).decode('utf-8')
+                            print(f"[NET] Received {data}")
+                            if not data:
+                                print("[NET] Connection closed by client.")
+                                break
+                            if data == "quit":
+                                conn.close()
+                                print(f"[NET] Connection closed with {addr[0]}")
+                                break
+                            cars = data.split('|')
+                            for entry in cars:
+                                car = entry.split('.')
+                                if car[1] == "1":
+                                    paid_cars.append(car[0].upper())
+                                else:
+                                    paid_cars.remove(car[0].upper())
+                            conn.sendall(str(paid_cars).encode('utf-8'))
+                        except Exception as e:
+                            conn.sendall(("ERROR: " + str(e)).encode('utf-8'))
     else:
         print("[NET] Ignoring NET setup")
         run_ocr()
