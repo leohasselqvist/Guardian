@@ -33,7 +33,7 @@ def __main__():
         run_ocr()
 
 
-async def run_ocr():
+def run_ocr():
     print("[OCR] Starting OCR...")
     ocr_result = True
     while ocr_result:
@@ -41,18 +41,25 @@ async def run_ocr():
 
 
 def ocr_cycle():
-    text = ocr.bounding_box_visualizer()
+    text = ocr.bounding_box_visualizer(debug_text=str(parked_cars))
+    chopping_block = []  # Quickfire solution to dict iteration size issue. Not very elegant
     if cv2.waitKey(1) & 0xFF == ord("q"):
-        return False
+        return False  # Failed cycle, interrupted by keyboard stroke
     for entry in text:
         if ocr.verify_reg(entry):  # If the entry is a car
             parked_cars[entry] = entry in paid_cars  # Add the entry to the list, auto check if they have paid yet.
             print(f"[DB] Adding {entry} to DB, payment {entry in paid_cars}")
-    for entry in parked_cars:
-        if entry not in text:
-            parked_cars.pop("entry")
-            print(f"[DB] Removing {entry} from DB")
-    return True
+    for entry in parked_cars:  # Check the existing list of cars and see if any have left
+        if entry not in text and ocr.verify_reg(entry):  # If a car has left...
+            chopping_block.append(entry)  # Add to chopping_block
+
+            # The reason for adding the dead cars to a new list is that a dict cannot change size while being iterated.
+            # chopping_block is a quick and inefficient solution. Will fix later.
+
+    for dead_car in chopping_block:  # TODO: Remove this unnecessary loop.
+        parked_cars.pop(dead_car)  # Remove all cars in chopping_block from parked_cars
+        print(f"[DB] Removing {dead_car} from DB")
+    return True  # Completed cycle
 
 
 if __name__ == "__main__":

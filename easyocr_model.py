@@ -5,7 +5,7 @@ from PIL import ImageDraw
 
 letterset = string.ascii_uppercase + string.digits
 
-reader = easyocr.Reader(['en'])
+reader = easyocr.Reader(['en'], gpu=True)
 
 vid_capture = cv2.VideoCapture(0)
 
@@ -31,7 +31,6 @@ def cleanup_text(text):
     # using OpenCV
     return "".join([c if c in letterset else "" for c in text]).strip()
 
-
 def __main__():
     while True:
         print(read_text())
@@ -39,7 +38,7 @@ def __main__():
             break
 
 
-def bounding_box_visualizer():  # Use cv2.waitkey() after function
+def bounding_box_visualizer(debug_text=""):  # Use cv2.waitkey() after function
     _, image = vid_capture.read()
     all_objects = []
 
@@ -65,6 +64,9 @@ def bounding_box_visualizer():  # Use cv2.waitkey() after function
         cv2.rectangle(image, tl, br, color, 2)
         cv2.putText(image, text, (tl[0], tl[1] - 10),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.8, color, 2)
+    height, _, _ = image.shape
+    if debug_text != "":  # optimization
+        cv2.putText(image, debug_text, (20, height-20), cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 255), 1)
     # show the output image
     cv2.imshow("Image", image)
     return all_objects
