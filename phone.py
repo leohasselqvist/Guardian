@@ -5,8 +5,8 @@ import socket
 HOST = 'localhost'  # The server's hostname or IP address
 PORT = 11417        # The port used by the server
 
-Reg = "MTB203"
-Expiry = 60  # Minutes
+Reg = "MLB803"
+Expiry = 2  # Minutes
 
 with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
     for attempts in range(1, 101):
@@ -16,5 +16,6 @@ with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
             s.send(f"{Reg}|{Expiry}".encode('utf-8'))
             print(f"[NET] {Reg}|{Expiry} transmitted, closing connection.")
             s.close()
+            break
         except ConnectionRefusedError:
             print(f"[NET] Attempt #{attempts}")
