@@ -10,7 +10,6 @@ paid_cars = {}
 
 
 def camera(c, a):
-    print(f"[CAM] Camera {a[0]} verified")
     while True:
         data = c.recv(1024).decode('utf-8')
         if not data:
@@ -34,6 +33,7 @@ def networking_head():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
         s.listen()
+        print("[HEAD] Server started.")
         while True:
             print("[HEAD] Listening for client...")
             s.listen(5)  # Now wait for client connection.
@@ -44,13 +44,16 @@ def networking_head():
                 while True:
                     data = conn.recv(1024).decode('utf-8')
                     if data == "c":
+                        print(f"[HEAD] Camera {addr[0]} verified")
                         camera(conn, addr)
                         break
                     else:
+                        print(f"[PHONE] REG from {addr[0]} ")
                         park_info = data.split('|')
                         reg = park_info[0]
                         expiry_time = datetime.datetime.now() + datetime.timedelta(minutes=int(park_info[1]))
                         paid_cars[reg] = expiry_time
+                        print(f"[PHONE] {addr[0]}: {reg} expiring on {expiry_time}")
 
 
 def __main__():

@@ -25,12 +25,13 @@ def __main__():
             for attempts in range(1, 101):
                 try:
                     s.connect((HOST, PORT))
-                    print("[NET] Connection established.")
+                    print("[NET] Connection established.\n[OCR] Initializing")
                     s.send("c".encode('utf-8'))  # Server verification for camera.
                     running = True
                     while running:
                         running = ocr_cycle(s=s)
                         attempts = 0
+                    break
                 except ConnectionRefusedError:
                     print(f"[NET] Connection attempt #{attempts}")
             else:
@@ -51,6 +52,7 @@ def ocr_cycle(s=None):
     text = ocr.bounding_box_visualizer(debug_text=str(parked_cars))
     if cv2.waitKey(1) & 0xFF == ord("q"):  # If q is pressed...
         if s:
+            print("[OCR] Quitting....")
             s.close()  # Close connection.
         return False  # Failed cycle, interrupted by keyboard stroke
     for car in parked_cars:
