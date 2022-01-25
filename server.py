@@ -33,7 +33,6 @@ def camera(c, a):
 def networking_head():
     with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
         s.bind((HOST, PORT))
-        s.listen()
         print("[HEAD] Server started.")
         while True:
             print("[HEAD] Listening for client...")
