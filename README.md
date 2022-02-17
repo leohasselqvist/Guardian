@@ -1,3 +1,3 @@
 Kod för Guardian Gymnasieprojekt
 
-Skicka gärna pull requests så kan jag tacka nej till dem personligt.
+keras.py och tesseract.py används inte just nu i projektet.
